@@ -64,7 +64,22 @@ object collections {
           case ((_, i), a)   => (a, i - 1)
         }
         ._1
-    def penultimate: A = self.foldLeft[(A, Int)]()
+    def penultimate: A =
+      self
+        .foldLeft[(A, A)]((self.head, self.tail.head)) { (acc, a) =>
+          (acc._2, a)
+        }
+        ._1
+    def forAll(p: A => Boolean): Boolean =
+      self.foldLeft(true) {
+        case (true, a)  => p(a)
+        case (false, _) => false
+      }
+
+    def exists(p: A => Boolean): Boolean = self.foldLeft(false) {
+      case (true, _)  => true
+      case (false, a) => p(a)
+    }
     def length: Int = self.foldLeft(0)((l, _) => l + 1)
     def tail: List[A] = self.foldLeft(List.empty[A]) { (acc, _) =>
       self match {
@@ -136,5 +151,7 @@ object collections {
 
 }
 object tests extends App {
-  println(collections.List(1, 5, 5, 6, 3, 4, 5, 6, 7, 8, 9).kth(3))
+  val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
+  println(list.penultimate)
+  println(list.forAll(_.>(0)))
 }
