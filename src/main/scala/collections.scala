@@ -72,18 +72,15 @@ object collections {
         ._1
     def forAll(p: A => Boolean): Boolean =
       self.foldLeft(true) {
-        case (true, a)  => p(a)
-        case (false, _) => false
+        case (b, a) => b && p(a)
       }
-
-    def exists(p: A => Boolean): Boolean = self.foldLeft(false) {
-      case (true, _)  => true
-      case (false, a) => p(a)
+    def exists(p: A => Boolean): Boolean = self.foldLeft(false) { (b, a) =>
+      b || p(a)
     }
     def length: Int = self.foldLeft(0)((l, _) => l + 1)
     def tail: List[A] = self.foldLeft(List.empty[A]) { (acc, _) =>
       self match {
-        case Nil => Nil
+        case Nil => acc
         case ::(a, list) =>
           acc match {
             case Nil => list
@@ -131,6 +128,7 @@ object collections {
       }
 
     }
+    def isPalindrome: Boolean = self.reverse == self
   }
   case object Nil extends List[Nothing]
   case class ::[A](a: A, list: List[A]) extends List[A]
@@ -147,11 +145,26 @@ object collections {
       loop(n)
     }
     def empty[A]: List[A] = Nil
+    def flatten[A](list: List[List[A]]): List[A] =
+      list.foldLeft(List.empty[A]) { (acc, a) =>
+        a match {
+          case Nil => acc
+          case ::(a, list) =>
+            a :: list.foldLeft(acc) { (acc, a) =>
+              a :: acc
+            }
+        }
+      }
+
   }
 
 }
 object tests extends App {
+  val pal = collections.List(1, 2, 3, 2, 6, 1)
+  println(pal.isPalindrome)
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
-  println(list.penultimate)
-  println(list.forAll(_.>(0)))
+  val flat = collections.List.flatten(collections.List(pal, list))
+  println(flat)
+
+  println(list.forAll(_.>(1)))
 }
