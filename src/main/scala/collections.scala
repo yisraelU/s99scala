@@ -149,16 +149,16 @@ object collections {
       loop(n)
     }
     def empty[A]: List[A] = Nil
-    /* def flatten[A](list: List[List[A]]): List[A] =
-      list.foldLeft(List.empty[A]) { (acc, a) =>
+    def flatten[A](list: List[List[A]]): List[A] =
+      list.foldRight(List.empty[A]) { (a, acc) =>
         a match {
           case Nil => acc
           case ::(a, list) =>
-            a :: acc :: list.foldLeft(acc) { (acc, a) =>
+            a :: list.foldRight(acc) { (a, acc) =>
               a :: acc
             }
         }
-      }*/
+      }
   }
 
 }
@@ -166,8 +166,8 @@ object tests extends App {
   val pal = collections.List(1, 2, 3, 2, 6, 1)
   println(pal.append(7).append(5).append(900))
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
-  /* val flat = collections.List.flatten(collections.List(pal, list))
+  val flat = collections.List.flatten(collections.List(pal, list))
   println(flat)
-   */
+
   println(list.forAll(_.>(1)))
 }
