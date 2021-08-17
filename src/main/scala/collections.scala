@@ -6,6 +6,10 @@ object collections {
     self =>
     def ::[A1 >: A](a: A1): List[A1] = new ::(a, self)
     def prepend[A1 >: A](a: A1): List[A1] = a :: self
+    def append[A1 >: A](a: A1): List[A1] =
+      self.foldRight[List[A1]](new ::(a, Nil)) { (a, acc) =>
+        a :: acc
+      }
     def foldLeft[B](acc: B)(f: (B, A) => B): B = {
       @tailrec
       def loop(list: List[A])(acc: B): B = {
@@ -145,26 +149,25 @@ object collections {
       loop(n)
     }
     def empty[A]: List[A] = Nil
-    def flatten[A](list: List[List[A]]): List[A] =
+    /* def flatten[A](list: List[List[A]]): List[A] =
       list.foldLeft(List.empty[A]) { (acc, a) =>
         a match {
           case Nil => acc
           case ::(a, list) =>
-            a :: list.foldLeft(acc) { (acc, a) =>
+            a :: acc :: list.foldLeft(acc) { (acc, a) =>
               a :: acc
             }
         }
-      }
-
+      }*/
   }
 
 }
 object tests extends App {
   val pal = collections.List(1, 2, 3, 2, 6, 1)
-  println(pal.isPalindrome)
+  println(pal.append(7).append(5).append(900))
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
-  val flat = collections.List.flatten(collections.List(pal, list))
+  /* val flat = collections.List.flatten(collections.List(pal, list))
   println(flat)
-
+   */
   println(list.forAll(_.>(1)))
 }
