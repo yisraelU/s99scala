@@ -2,6 +2,9 @@ import java.util.NoSuchElementException
 import scala.annotation.tailrec
 
 object collections {
+  trait Equals[-B] {
+    def ==(b: B, b2: B): Boolean
+  }
   sealed trait List[+A] {
     self =>
     def ::[A1 >: A](a: A1): List[A1] = new ::(a, self)
@@ -133,6 +136,14 @@ object collections {
 
     }
     def isPalindrome: Boolean = self.reverse == self
+    // requires equivalence type class
+    def compress(implicit ev: Equals[A]): List[A] =
+      self
+        .foldRight((List.empty[A], self.head)) { (a, acc) =>
+          if (a == acc._2) acc
+          else (a :: acc._1, a)
+        }
+        ._1
   }
   case object Nil extends List[Nothing]
   case class ::[A](a: A, list: List[A]) extends List[A]
@@ -163,7 +174,11 @@ object collections {
 
 }
 object tests extends App {
-  val pal = collections.List(1, 2, 3, 2, 6, 1)
+  implicit val iEquals = new collections.Equals[Int] {
+    override def ==(b: Int, b2: Int) = b == b2
+  }
+  val pal = collections.List(1, 2, 2, 2, 3, 3, 2, 3, 2, 6, 1)
+  println(pal.compress)
   println(pal.append(7).append(5).append(900))
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
   val flat = collections.List.flatten(collections.List(pal, list))
