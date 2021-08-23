@@ -151,6 +151,10 @@ object collections {
     def duplicate: List[A] = self.foldRight(List.empty[A]) { (a, acc) =>
       a :: a :: acc
     }
+    def duplicateN(n: Int): List[A] = self.foldRight(List.empty[A]) {
+      (a, acc) =>
+        List.fill(n)(a).append(acc)
+    }
   }
   case object Nil extends List[Nothing]
   case class ::[A](a: A, list: List[A]) extends List[A]
@@ -185,7 +189,7 @@ object tests extends App {
     override def ==(b: Int, b2: Int) = b == b2
   }
   val pal = collections.List(1, 2, 3, 4, 5, 6, 6)
-  println(pal.duplicate)
+  println(pal.duplicateN(7))
   println(pal.compress)
   println(pal.append(7).append(5).append(900))
 
