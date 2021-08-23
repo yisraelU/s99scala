@@ -144,6 +144,13 @@ object collections {
           else (a :: acc._1, a)
         }
         ._1
+    /*   def pack(implicit ev: Equals[A]): List[List[A]] = self.foldRight((List(List.empty[A]),self.head)){
+      case (a,(acc,h)) => if(a == h) (::(a,Nil) :: acc , a) else
+    }._1*/
+
+    def duplicate: List[A] = self.foldRight(List.empty[A]) { (a, acc) =>
+      a :: a :: acc
+    }
   }
   case object Nil extends List[Nothing]
   case class ::[A](a: A, list: List[A]) extends List[A]
@@ -177,9 +184,11 @@ object tests extends App {
   implicit val iEquals = new collections.Equals[Int] {
     override def ==(b: Int, b2: Int) = b == b2
   }
-  val pal = collections.List(1, 2, 2, 2, 3, 3, 2, 3, 2, 6, 1)
+  val pal = collections.List(1, 2, 3, 4, 5, 6, 6)
+  println(pal.duplicate)
   println(pal.compress)
   println(pal.append(7).append(5).append(900))
+
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
   val flat = collections.List.flatten(collections.List(pal, list))
   println(flat)
