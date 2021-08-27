@@ -32,6 +32,7 @@ object collections {
       }
       loop(self)(acc)
     }
+    def fold[A1 >: A](acc: A1)(f: (A1, A) => A1): A1 = foldLeft(acc)(f)
     def append[A1 >: A](that: List[A1]): List[A1] = {
       self
         .foldLeft(that) { (acc, a) =>
@@ -135,6 +136,25 @@ object collections {
       }
 
     }
+    def plainZip[A1 >: A](that: List[A1]): List[(A1, A1)] =
+      (self, that) match {
+        case (Nil, _) | (_, Nil)        => List.empty[(A1, A1)]
+        case (::(h1, tl1), ::(h2, tl2)) => (h1, h2) :: tl1.plainZip(tl2)
+      }
+
+    def zip[A1 >: A](that: List[A1]): List[(A1, A1)] =
+      self
+        .foldLeft((List.empty[(A1, A1)], that)) { (acc, a) =>
+          {
+            acc._2 match {
+              case Nil       => acc
+              case ::(b, tl) => ((a, b) :: acc._1, tl)
+            }
+          }
+        }
+        ._1
+        .reverse
+
     def isPalindrome: Boolean = self.reverse == self
     // requires equivalence type class
     def compress(implicit ev: Equals[A]): List[A] =
@@ -163,6 +183,9 @@ object collections {
     def apply[A](a: A*): List[A] =
       if (a.isEmpty) Nil
       else a.head :: apply(a.tail: _*)
+
+    def unapplySeq() = ???
+
     def fill[A](n: Int)(elem: => A): List[A] = {
       def loop(n: Int): List[A] = {
         if (n <= 0) Nil
@@ -195,7 +218,7 @@ object tests extends App {
 
   val list = collections.List(1, 5, 5, 3, 4, 5, 7, 8, 10, 9)
   val flat = collections.List.flatten(collections.List(pal, list))
+  println(pal.zip(list))
   println(flat)
-
   println(list.forAll(_.>(1)))
 }
